@@ -98,6 +98,6 @@ from
     ) 
 
 WHERE
-    RANKS <=5         
+    RANKS <=50         
 
 
