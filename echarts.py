@@ -23,3 +23,17 @@ bar.add("evaporation", attr, v2, mark_line=["average"], mark_point=["max", "min"
 #bar.render()
 bar.render(r'./HTML/pyecharts_2.html')      #保存为本地HTML单文件
 bar                               #在jupyter 中 显示
+
+
+
+if htmlFileName != None:
+    htmlFileName = os.path.abspath(htmlFileName)  # 转化为绝对路径
+    # 下面为图表:
+    dfec = tables[0].loc[
+        df['CITY'] == 'Baoji', ['RANKS', 'RRC连接成功率']]  # 选取tables[0] 中 CITY='Baoji' 的 'CITY', 'RRC连接成功率' 两列数据
+    dfec = tables[0].loc[df['RANKS'] == 1, ['CITY', 'RRC连接成功率']]
+    bar = Bar(sql[0], col[5])
+    bar.add(col[5], dfec['CITY'], dfec['RRC连接成功率'], mark_line=["average"], mark_point=["max", "min"])
+    # bar.render()
+    bar.render(r'./HTML/pyecharts_2.html')  # 保存为本地HTML单文件
+

@@ -17,6 +17,9 @@ import getfiles
 from pyecharts import Bar
 
 
+
+
+
 def getDateRange():
     '''
     获取参数(默认为当天)所在月份的第一个完整周 周一的日期
@@ -51,11 +54,9 @@ def getDateRange():
 
     return rangeDate
 
-
-tdate = getDateRange()
+tdate = getDateRange()  #初始化日期
 start_datetime = tdate['yesday']  # 昨天的日期 '20180529'
-end_datetime = tdate['today'] # 今天的日期 '20180530'
-
+end_datetime = tdate['today']  # 今天的日期 '20180530'
 
 def sqlCollated(sqlFilePath):
     '''
@@ -87,9 +88,8 @@ def proessSQL(sql) :
     #newsql = newsql.decode('utf-8')
     return newsql
 
-sqls = sqlCollated(os.path.abspath(r'./sql/lte'))
 
-def executeSQL(sqls,conStr,excelFileName=r'./output/' + tdate['today'] + '/excel.xlsx', htmlFileName=r'./output/' + tdate['today']):
+def executeSQL(sqls,conStr,excelFileName=r'./output/' + tdate['today'] ):
     '''
 
     :param sqls: 为一个二元列表 [('sqlName1', 'sqlScript1'), ('sqlName2', 'sqlScript2'), ('sqlNameN', 'sqlScriptN')].
@@ -103,6 +103,13 @@ def executeSQL(sqls,conStr,excelFileName=r'./output/' + tdate['today'] + '/excel
     conn = cx_Oracle.connect(conStr)       #建立与oracle数据库的连接, 格式为  'user/password@IP/servicename'
     cursor = conn.cursor()																  #连接的游标
 
+    if excelFileName != None:
+        getfiles.mkdir(os.path.abspath(excelFileName))  # 确认文件夹存在,不存在则建立此文件夹
+        fileName = os.path.join(os.path.abspath(excelFileName), start_datetime + "_" + end_datetime + ".xlsx")
+        excelWriter = pd.ExcelWriter(fileName)  # 创建 excelWriter
+    else:
+        excelWriter = None
+
     tables = []   #保存DataFream的数组
     for i,sql in enumerate(sqls) :
         #遍历执行每一个sql语句,并将结果转化为Datafream对象  添加到列表 tables 中
@@ -111,24 +118,14 @@ def executeSQL(sqls,conStr,excelFileName=r'./output/' + tdate['today'] + '/excel
         col = [str[0] for str in cursor.description]       #col 为字段名的 列表
         df = pd.DataFrame(rows,columns = col)         #转化为DataFream  并添加 列表 col 为列名
         tables.append(df)                           #将df添加到tables 列表
-        if excelFileName!=None:
-            excelFileName = os.path.abspath(excelFileName)      #转化为绝对路径
-            df.to_excel(excelFileName,sheet_name=sql[0],columns=col, header=True, index=False)    #保存为excel文件
+        if excelWriter:
+            tables[i].to_excel(excelWriter,sql[0])    # 给excelWriter 添加sheet
 
-        if htmlFileName!=None:
-            htmlFileName = os.path.abspath(htmlFileName)  # 转化为绝对路径
-            #下面为图表:
-            dfec = tables[0].loc[df['CITY'] == 'Baoji', ['RANKS', 'RRC连接成功率']]    #选取tables[0] 中 CITY='Baoji' 的 'CITY', 'RRC连接成功率' 两列数据
-            dfec = tables[0].loc[df['RANKS'] == 1, ['CITY', 'RRC连接成功率']]
-            bar = Bar(sql[0],col[5])
-            bar.add(col[5], dfec['CITY'], dfec[ 'RRC连接成功率'], mark_line=["average"], mark_point=["max", "min"])
-            #bar.render()
-            bar.render(r'./HTML/pyecharts_2.html')      #保存为本地HTML单文件
-
+    if  excelWriter:
+        excelWriter.save()  # 保存excel文件 注意: 此处保存excelWriter 需要等待所有sheet均写入后
+                            #  一次保存 否则 excelWriter 关闭后只能有一个sheet
     cursor.close()                    #关闭游标
     conn.close()						 #关闭数据库连接
-    zip([name[0] for name in sqls],tables)
-
     return list(zip([name[0] for name in sqls],tables))  # 返回 (文件名,Datafream) 的 列表
 
 
@@ -138,6 +135,8 @@ def executeSQL(sqls,conStr,excelFileName=r'./output/' + tdate['today'] + '/excel
 
 
 if __name__=='__main__':
-    sqls = sqlCollated(os.path.abspath(r'./sql/lte'))
+    sqls = sqlCollated(os.path.abspath(r'./sql/lte'))    #整理sql脚本
     print(sqls)
-    conStr = 'omc/omc@10.100.162.10/oss'
+    conStr = 'omc/omc@10.100.162.10/oss'                #Oracle连接字符串
+    sqlDf = executeSQL(sqls,conStr)                         #连接数据库,执行sql 并返回 Datafream
+

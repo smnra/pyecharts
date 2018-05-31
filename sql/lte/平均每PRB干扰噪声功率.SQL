@@ -7,14 +7,14 @@ FROM
         (SELECT
                 lncel_id,
                 period_start_time,
-                ÏÂÐÐ×î´óÒµÎñÁ¿,
-                rank() over( Partition by lncel_id Order by ÏÂÐÐ×î´óÒµÎñÁ¿ DESC) AS RANKS
+                ä¸‹è¡Œæœ€å¤§ä¸šåŠ¡é‡,
+                rank() over( Partition by lncel_id Order by ä¸‹è¡Œæœ€å¤§ä¸šåŠ¡é‡ DESC) AS RANKS
                 
         FROM
                  (SELECT 
                     lcellt.lncel_id AS lncel_id,
                    lcellt.period_start_time AS period_start_time,
-                    SUM(PDCP_SDU_VOL_DL)  AS ÏÂÐÐ×î´óÒµÎñÁ¿
+                    SUM(PDCP_SDU_VOL_DL)  AS ä¸‹è¡Œæœ€å¤§ä¸šåŠ¡é‡
                     
                 FROM 
                     NOKLTE_PS_LCELLT_LNCEL_HOUR lcellt
@@ -50,8 +50,8 @@ from
         lpqul.ci,
         lpqul.lnbts_name,
         lpqul.period_start_time,
-        rank() over( Partition by lpqul.city Order by lpqul.Æ½¾ùÃ¿PRB¸ÉÈÅÔëÉù¹¦ÂÊ DESC) AS RANKS,
-        lpqul.Æ½¾ùÃ¿PRB¸ÉÈÅÔëÉù¹¦ÂÊ,
+        rank() over( Partition by lpqul.city Order by lpqul.å¹³å‡æ¯PRBå¹²æ‰°å™ªå£°åŠŸçŽ‡ DESC) AS RANKS,
+        lpqul.å¹³å‡æ¯PRBå¹²æ‰°å™ªå£°åŠŸçŽ‡,
         lpqul.RSSI_PUCCH_MIN,
         lpqul.RSSI_PUCCH_AVG,
         lpqul.RSSI_PUSCH_MIN,
@@ -106,7 +106,7 @@ from
             (lpqul.SINR_PUSCH_LEVEL_11)+(lpqul.SINR_PUSCH_LEVEL_12)+(lpqul.SINR_PUSCH_LEVEL_13)+
             (lpqul.SINR_PUSCH_LEVEL_14)+(lpqul.SINR_PUSCH_LEVEL_15)+(lpqul.SINR_PUSCH_LEVEL_16)+
             (lpqul.SINR_PUSCH_LEVEL_17)+(lpqul.SINR_PUSCH_LEVEL_18)+(lpqul.SINR_PUSCH_LEVEL_19)+
-            (lpqul.SINR_PUSCH_LEVEL_20)+(lpqul.SINR_PUSCH_LEVEL_21)+(lpqul.SINR_PUSCH_LEVEL_22)),2)) AS Æ½¾ùÃ¿PRB¸ÉÈÅÔëÉù¹¦ÂÊ,
+            (lpqul.SINR_PUSCH_LEVEL_20)+(lpqul.SINR_PUSCH_LEVEL_21)+(lpqul.SINR_PUSCH_LEVEL_22)),2)) AS å¹³å‡æ¯PRBå¹²æ‰°å™ªå£°åŠŸçŽ‡,
 
             min(lpqul.RSSI_PUCCH_MIN)  RSSI_PUCCH_MIN,
             avg(lpqul.RSSI_PUCCH_AVG)  RSSI_PUCCH_AVG,
@@ -132,11 +132,11 @@ from
         ) lpqul
 
     WHERE
-        (lpqul.Æ½¾ùÃ¿PRB¸ÉÈÅÔëÉù¹¦ÂÊ >= -103 and lpqul.Æ½¾ùÃ¿PRB¸ÉÈÅÔëÉù¹¦ÂÊ <> 0)
+        (lpqul.å¹³å‡æ¯PRBå¹²æ‰°å™ªå£°åŠŸçŽ‡ >= -103 and lpqul.å¹³å‡æ¯PRBå¹²æ‰°å™ªå£°åŠŸçŽ‡ <> 0)
 
     ORDER BY
         lpqul.city,
-        lpqul.Æ½¾ùÃ¿PRB¸ÉÈÅÔëÉù¹¦ÂÊ DESC 
+        lpqul.å¹³å‡æ¯PRBå¹²æ‰°å™ªå£°åŠŸçŽ‡ DESC 
         
         
     ) 

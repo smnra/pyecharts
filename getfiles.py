@@ -17,6 +17,17 @@ elif len(sys.argv) > 1 :
     else :
         basePath = sys.argv[1]
 
+def mkdir(path):
+
+    if not os.path.isfile(path):
+        dirPath = os.path.abspath(path)
+    else:
+        dirPath = os.path.split(os.path.abspath(path))[0]
+    if not os.path.exists(dirPath):
+        os.mkdir(dirPath)
+        print(u"文件夹不存在,已经创建!" ,dirPath)
+    return dirPath
+
 def getTypeFileList(basePath = basePath, *typeList):    #默认参数为脚本所在路径
     '''
 
@@ -26,6 +37,12 @@ def getTypeFileList(basePath = basePath, *typeList):    #默认参数为脚本�
     '''
     FlieList = []
     typeList = [n.lower() for n  in typeList]    #将列表转化为小写
+    if os.path.isfile(basePath):                  #如果basePath 是一个文件
+        if os.path.splitext(basePath)[1].lower() in typeList :       # 判断文件的扩展名是否在typeList 中
+            return [os.path.abspath(basePath)]      # 返回文件绝对路径的列表
+        else:
+            return None                             # 返回 None
+
     #遍历压缩包所在路径,把  .tar.gz .tgz 和 .tar.gzip 文件路径保存到 zipFileList
     for path,dirs,files in os.walk(basePath):
         #path,dirs,files 对应os.walk()的返回值 元祖 的三个元素边,分别为当前路径,文件夹列表 和 文件列表

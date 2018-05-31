@@ -7,14 +7,14 @@ FROM
         (SELECT
                 lncel_id,
                 period_start_time,
-                œ¬––◊Ó¥Û“µŒÒ¡ø,
-                rank() over( Partition by lncel_id Order by œ¬––◊Ó¥Û“µŒÒ¡ø DESC) AS RANKS
+                ‰∏ãË°åÊúÄÂ§ß‰∏öÂä°Èáè,
+                rank() over( Partition by lncel_id Order by ‰∏ãË°åÊúÄÂ§ß‰∏öÂä°Èáè DESC) AS RANKS
                 
         FROM
                  (SELECT 
                     lcellt.lncel_id AS lncel_id,
                    lcellt.period_start_time AS period_start_time,
-                    SUM(PDCP_SDU_VOL_DL)  AS œ¬––◊Ó¥Û“µŒÒ¡ø
+                    SUM(PDCP_SDU_VOL_DL)  AS ‰∏ãË°åÊúÄÂ§ß‰∏öÂä°Èáè
                     
                 FROM 
                     NOKLTE_PS_LCELLT_LNCEL_HOUR lcellt
@@ -49,10 +49,10 @@ from
         luest.ci,
         luest.lnbts_name,
         luest.period_start_time,
-        rank() over( Partition by luest.city Order by luest.RRC¡¨Ω”«Î«Û¥Œ ˝ - luest.RRC¡¨Ω”≥…π¶¥Œ ˝ DESC ) AS RANKS,
-        luest.RRC¡¨Ω”≥…π¶¬ ,
-        luest.RRC¡¨Ω”≥…π¶¥Œ ˝,
-        luest.RRC¡¨Ω”«Î«Û¥Œ ˝
+        rank() over( Partition by luest.city Order by luest.RRCËøûÊé•ËØ∑Ê±ÇÊ¨°Êï∞ - luest.RRCËøûÊé•ÊàêÂäüÊ¨°Êï∞ DESC ) AS RANKS,
+        luest.RRCËøûÊé•ÊàêÂäüÁéá,
+        luest.RRCËøûÊé•ÊàêÂäüÊ¨°Êï∞,
+        luest.RRCËøûÊé•ËØ∑Ê±ÇÊ¨°Êï∞
         
     FROM    
         (Select
@@ -61,11 +61,11 @@ from
             c.lnbts_name,
             to_char(luest.period_start_time,'YYYY-MM-DD') period_start_time,
 
-            round(DECODE(decode((CASE WHEN c.version='FL16' THEN 'FL16' WHEN c.version='FLF16' THEN 'FL16' WHEN c.version='FL16A' THEN 'FL16' WHEN c.version='TL16' THEN 'FL16' ELSE c.version END), 'FL16',sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0,luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode( luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO)),sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_OTHERS + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0, luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode(luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0, luest.SIGN_CONN_ESTAB_ATT_HIPRIO))), 0, 0, sum(luest.SIGN_CONN_ESTAB_COMP) / decode((CASE WHEN c.version='FL16' THEN 'FL16' WHEN c.version='FLF16' THEN 'FL16' ELSE c.version END), 'FL16',sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0,luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode( luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO)),sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_OTHERS + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0, luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode(luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO))))*100,2) AS RRC¡¨Ω”≥…π¶¬ ,
+            round(DECODE(decode((CASE WHEN c.version='FL16' THEN 'FL16' WHEN c.version='FLF16' THEN 'FL16' WHEN c.version='FL16A' THEN 'FL16' WHEN c.version='TL16' THEN 'FL16' ELSE c.version END), 'FL16',sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0,luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode( luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO)),sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_OTHERS + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0, luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode(luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0, luest.SIGN_CONN_ESTAB_ATT_HIPRIO))), 0, 0, sum(luest.SIGN_CONN_ESTAB_COMP) / decode((CASE WHEN c.version='FL16' THEN 'FL16' WHEN c.version='FLF16' THEN 'FL16' ELSE c.version END), 'FL16',sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0,luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode( luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO)),sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_OTHERS + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0, luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode(luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO))))*100,2) AS RRCËøûÊé•ÊàêÂäüÁéá,
 
-           decode((CASE WHEN c.version='FL16' THEN 'FL16' WHEN c.version='FLF16' THEN 'FL16' WHEN c.version='FL16A' THEN 'FL16' WHEN c.version='TL16' THEN 'FL16' ELSE c.version END),'FL16',sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0,luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode( luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO)),sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_OTHERS +   luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0, luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode(luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO))) AS RRC¡¨Ω”«Î«Û¥Œ ˝,
+           decode((CASE WHEN c.version='FL16' THEN 'FL16' WHEN c.version='FLF16' THEN 'FL16' WHEN c.version='FL16A' THEN 'FL16' WHEN c.version='TL16' THEN 'FL16' ELSE c.version END),'FL16',sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0,luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode( luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO)),sum(luest.SIGN_CONN_ESTAB_ATT_MO_S + luest.SIGN_CONN_ESTAB_ATT_MT + luest.SIGN_CONN_ESTAB_ATT_MO_D + luest.SIGN_CONN_ESTAB_ATT_OTHERS +   luest.SIGN_CONN_ESTAB_ATT_EMG + decode(luest.SIGN_CONN_ESTAB_ATT_DEL_TOL,'',0, luest.SIGN_CONN_ESTAB_ATT_DEL_TOL)+ decode(luest.SIGN_CONN_ESTAB_ATT_HIPRIO,'',0,luest.SIGN_CONN_ESTAB_ATT_HIPRIO))) AS RRCËøûÊé•ËØ∑Ê±ÇÊ¨°Êï∞,
 
-            sum(luest.SIGN_CONN_ESTAB_COMP) RRC¡¨Ω”≥…π¶¥Œ ˝
+            sum(luest.SIGN_CONN_ESTAB_COMP) RRCËøûÊé•ÊàêÂäüÊ¨°Êï∞
 
         FROM
             NOKLTE_PS_LUEST_LNCEL_HOUR luest
@@ -88,11 +88,11 @@ from
         ) luest
 
     WHERE
-        (luest.RRC¡¨Ω”≥…π¶¬  < 99 and luest.RRC¡¨Ω”«Î«Û¥Œ ˝ >= 100)
+        (luest.RRCËøûÊé•ÊàêÂäüÁéá < 99 and luest.RRCËøûÊé•ËØ∑Ê±ÇÊ¨°Êï∞ >= 100)
 
     ORDER BY
         luest.city,
-        luest.RRC¡¨Ω”«Î«Û¥Œ ˝ - luest.RRC¡¨Ω”≥…π¶¥Œ ˝ DESC 
+        luest.RRCËøûÊé•ËØ∑Ê±ÇÊ¨°Êï∞ - luest.RRCËøûÊé•ÊàêÂäüÊ¨°Êï∞ DESC 
         
         
     ) 
