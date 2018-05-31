@@ -1,11 +1,7 @@
 # coding = utf-8
 # -*- coding: utf-8 -*-
 import sys
-
-
-
 import os
-import re
 
 #获取当前脚本运行时的参数 如果只有1个参数(脚本自身),则打印提示信息
 if len(sys.argv) == 1 :
@@ -21,18 +17,25 @@ elif len(sys.argv) > 1 :
     else :
         basePath = sys.argv[1]
 
-def getGzipList(basePath = basePath, *typeList):    #默认参数为脚本所在路径
-    zipFlieList = []
+def getTypeFileList(basePath = basePath, *typeList):    #默认参数为脚本所在路径
+    '''
+
+    :param basePath: 为路径字符串,
+    :param typeList: 为文件类型的列表 即,可以接收多个文件类型参数
+    :return: 返回路径下的指定类型的文件的列表
+    '''
+    FlieList = []
+    typeList = [n.lower() for n  in typeList]    #将列表转化为小写
     #遍历压缩包所在路径,把  .tar.gz .tgz 和 .tar.gzip 文件路径保存到 zipFileList
     for path,dirs,files in os.walk(basePath):
         #path,dirs,files 对应os.walk()的返回值 元祖 的三个元素边,分别为当前路径,文件夹列表 和 文件列表
         for file in files:
             #对文件列表files进行遍历
-            if os.path.splitext(file)[1]  in  typeList :
+            if os.path.splitext(file)[1].lower()  in  typeList :
                 #如果扩展名为 在列表fileList 中( ['.gz', '.gzip', 'tgz']), 则把路径和文件名进行组合,并添加到zipFileList列表中
-                zipFlieList.append(os.path.join(path, file).encode(encoding='utf-8'))
-    return zipFlieList
+                FlieList.append(os.path.join(path, file))
+    return FlieList
 
 
 if __name__ == '__main__':
-    getGzipList(basePath,'.gz', '.gzip', '.tgz')
+    getTypeFileList(basePath,'.gz', '.gzip', '.tgz')
