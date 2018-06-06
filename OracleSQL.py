@@ -14,6 +14,7 @@ import cx_Oracle
 import arrow         #导入 时间日期 模块
 import pandas as pd
 import getfiles
+from sqlalchemy import create_engine #mysql 支持
 from pyecharts import Bar
 
 
@@ -34,6 +35,7 @@ def getDateRange():
     rangeDate={}                                                             #定义返回值  字典
     rangeDate['today'] = arrow.now().format('YYYYMMDD')                 #今日的日期
     rangeDate['yesday'] = arrow.now().replace(days = -1).format('YYYYMMDD')  # 昨天日的日期
+    rangeDate['now'] = arrow.now().format('YYYYMMDDHHMISS')
 
     lastMonth_1st_day = now.floor('month').replace(months = -1)             #上个月1号的日期
     thisMonth_1st_day = now.floor('month')                                  #这个月1号的日期
@@ -55,16 +57,14 @@ def getDateRange():
     return rangeDate
 
 tdate = getDateRange()  #初始化日期
-start_datetime = tdate['yesday']  # 昨天的日期 '20180529'
-end_datetime = tdate['today']  # 今天的日期 '20180530'
 
-def sqlCollated(sqlFilePath):
+def sqlCollated(sqlFilePath,extensionFileName):
     '''
     此函数的功能为 查找给出参数路径下的 '.SQL' 文件,并返回 文件名字(不包含扩展名) 和 文件内容的元组构成的列表
     :param sqlFilePath: 存储 .SQL 文件的 路径
     :return: 为一个二元列表 [('文件名1', '文件内容1'), ('文件名2', '文件内容2'), ('文件名n', '文件内容n')]
     '''
-    sqlFiles = getfiles.getTypeFileList(os.path.abspath(sqlFilePath), '.SQL')  #获取 '.SQL' 文件列表 此处不区分大小写
+    sqlFiles = getfiles.getTypeFileList(os.path.abspath(sqlFilePath), extensionFileName)  #获取 '.SQL' 文件列表 此处不区分大小写
     sqls = []    #存储sql脚本的列表
     sqlFileNames = [] #存储sql文件的文件名 ,不包含 扩展名.SQL
     for i,sqlFile in enumerate(sqlFiles) :
@@ -83,29 +83,27 @@ def sqlCollated(sqlFilePath):
 
 def proessSQL(sql) :
     #此函数为替换plsql脚本中的变量 为  &start_datetime 为 start_datetime的值
-    newsql = sql.replace('&start_datetime',start_datetime)
-    newsql = newsql.replace('&end_datetime',end_datetime)
+    newsql = sql.replace('&start_datetime',tdate['yesday'])
+    newsql = newsql.replace('&end_datetime',tdate['today'])
     #newsql = newsql.decode('utf-8')
     return newsql
-
 
 def executeSQL(sqls,conStr,excelFileName=r'./output/' + tdate['today'] ):
     '''
 
     :param sqls: 为一个二元列表 [('sqlName1', 'sqlScript1'), ('sqlName2', 'sqlScript2'), ('sqlNameN', 'sqlScriptN')].
-    :param conStr: 为Oracle 连接的字符串,例如:conStr = 'omc/omc@10.100.162.10/oss'
-            ('user/password@host:port/servicename') 默认端口1521可以省略.
+    :param conStr: 为Oracle 连接的字符串,例如:conStr = 'oracle://omc:omc@10.100.162.10:1521/oss'
+            ('oracle://user:password@ip:port/servicename') 默认端口1521可以省略.
+            或者 'mysql+pymysql://root:planet@127.0.0.1:10010/4g_kpi_browsing?charset=utf8'
     :param excelFileName  可选参数,默认值为 (r'./output/' + tdate['today'] + '/excel.xlsx') 即将结果保存为excel 文件的路径
             excelFileName 为 None 时 不保存excel文件.
     :return: 返回 (文件名,Datafream) 的 列表 文件名为参数中的sql文件名,
              Datafream 为从数据库中取得的表转化为Datafream
     '''
-    conn = cx_Oracle.connect(conStr)       #建立与oracle数据库的连接, 格式为  'user/password@IP/servicename'
-    cursor = conn.cursor()																  #连接的游标
-
+    engine = create_engine(conStr)  #创建数据库引擎
     if excelFileName != None:
         getfiles.mkdir(os.path.abspath(excelFileName))  # 确认文件夹存在,不存在则建立此文件夹
-        fileName = os.path.join(os.path.abspath(excelFileName), start_datetime + "_" + end_datetime + ".xlsx")
+        fileName = os.path.join(os.path.abspath(excelFileName), tdate['yesday'] + "_" + tdate['today'] + "_" + tdate['now'] + ".xlsx")
         excelWriter = pd.ExcelWriter(fileName)  # 创建 excelWriter
     else:
         excelWriter = None
@@ -113,30 +111,67 @@ def executeSQL(sqls,conStr,excelFileName=r'./output/' + tdate['today'] ):
     tables = []   #保存DataFream的数组
     for i,sql in enumerate(sqls) :
         #遍历执行每一个sql语句,并将结果转化为Datafream对象  添加到列表 tables 中
-        cursor.execute(proessSQL(sql[1]))  # 执行的sql语句
-        rows = cursor.fetchall()        #一次取回所有记录,保存到rows中. rows为一个 列表, rows的元素还是一个列表,所以他的结构 就是 rows的每一个元素为一个列表(一行记录)
-        col = [str[0] for str in cursor.description]       #col 为字段名的 列表
-        df = pd.DataFrame(rows,columns = col)         #转化为DataFream  并添加 列表 col 为列名
+        df = pd.read_sql(proessSQL(sql[1]), engine)  # read_sql直接返回一个DataFrame对象
         tables.append(df)                           #将df添加到tables 列表
         if excelWriter:
             tables[i].to_excel(excelWriter,sql[0])    # 给excelWriter 添加sheet
-
     if  excelWriter:
         excelWriter.save()  # 保存excel文件 注意: 此处保存excelWriter 需要等待所有sheet均写入后
                             #  一次保存 否则 excelWriter 关闭后只能有一个sheet
-    cursor.close()                    #关闭游标
-    conn.close()						 #关闭数据库连接
     return list(zip([name[0] for name in sqls],tables))  # 返回 (文件名,Datafream) 的 列表
 
 
 
 
-
-
-
 if __name__=='__main__':
-    sqls = sqlCollated(os.path.abspath(r'./sql/lte'))    #整理sql脚本
+    sqls = sqlCollated(os.path.abspath(r'./sql/lte'),'.mysql')    #整理sql脚本
     print(sqls)
-    conStr = 'omc/omc@10.100.162.10/oss'                #Oracle连接字符串
+    #conStr = 'oracle://omc:omc@10.100.162.10:1521/oss'                #Oracle连接字符串
+    conStr = 'mysql+pymysql://root:planet@127.0.0.1:10010/4g_kpi_browsing?charset=utf8'
     sqlDf = executeSQL(sqls,conStr)                         #连接数据库,执行sql 并返回 Datafream
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
