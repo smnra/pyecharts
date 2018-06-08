@@ -1,176 +1,127 @@
-# coding = utf-8
-# -*- coding: utf-8 -*-
-import os
-os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.AL32UTF8'            #设置环境变量
-#os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.ZHS16GBK'
-os.environ["PATH"] = 'D:\\instantclient_12_1' + ';' +os.environ["PATH"]  #给PATH中添加 ''D:\instantclient_12_1'
-os.path.sys.path.insert(0, 'D:\\instantclient_12_1')
-os.environ['ORACLE_HOME'] = 'D:\\instantclient_12_1'
-os.environ['TNS_ADMIN'] = 'D:\\instantclient_12_1'
+#!usr/bin/env python
+#-*- coding:utf-8 _*-
+
+"""
+@author:Administrator
+@file: echarts.py
+@time: 2018/05/{DAY}
+描述:
+
+"""
+from sqlToDatafream import *
+import os,math
+from pyecharts import *
 
 
-import coding
-import cx_Oracle
-import arrow         #导入 时间日期 模块
-import pandas as pd
-import getfiles
-from sqlalchemy import create_engine #mysql 支持
-from pyecharts import Bar
+tdate = getDateRange()  # 初始化日期
+tdate['startDate'] = '20180528'
+tdate['endDate'] = '20180606'
+# tdate['now'] = None  #为 None时  不生产excel文件
+
+sqls = sqlCollated(os.path.abspath(r'./sql/lte'), '.mysql')  # 整理sql脚本
+print(sqls)
+# conStr = 'oracle://omc:omc@10.100.162.10:1521/oss'                #Oracle连接字符串
+conStr = 'mysql+pymysql://root:planet@127.0.0.1:10010/4g_kpi_browsing?charset=utf8'
+sqlDatafream = executeSQL(sqls, conStr, tdate)  # 连接数据库,执行sql 并返回 Datafream
+
+dft = sqlDatafream[0]
+
+df = dft[1].sort_values(by=['地市','日期'])      #把dft[1] 排序
+#df.columns #列名的集合
+#df.index   #索引的集合
+#df[df['CITY'] == 'Baoji'][1:10][['RANKS', 'RRC连接成功率']]
 
 
 
+'''
+line1 = df[df['地市'] == '咸阳FDD'][['日期', 'rrc建立成功率']]
+line2 = df[df['地市'] == '宝鸡FDD'][['日期', 'rrc建立成功率']]
+line3 = df[df['地市'] == '西安FDD'][['日期', 'rrc建立成功率']]
+page = Page()
+bar = Bar('RRC建立成功率:', dft[0])   # 图表 line的标题和副标题
+bar_2 = Bar('RRC建立成功率2:', dft[0])   # 图表 line的标题和副标题
+line = Line('RRC建立成功率:', dft[0])   # 图表 line的标题和副标题
+line_2 = Line('RRC建立成功率line2:', dft[0])   # 图表 line的标题和副标题
 
 
-def getDateRange():
-    '''
-    获取参数(默认为当天)所在月份的第一个完整周 周一的日期
-    此函数返回一个字典,格式为
-    {'yesday': '20180528',  #昨天的日期
-     'today': '20180529',   #今天的日期
-     'startDate': '20180501', #开始的日期
-     'endDate': '20180601'  #结束的日期
-    }
-    '''
-    now = arrow.now()                                                        #当前时间
-    rangeDate={}                                                             #定义返回值  字典
-    rangeDate['today'] = arrow.now().format('YYYYMMDD')                 #今日的日期
-    rangeDate['yesday'] = arrow.now().replace(days = -1).format('YYYYMMDD')  # 昨天日的日期
-    rangeDate['now'] = arrow.now().format('YYYYMMDDHHMISS')
+line.add('咸阳FDD', line1['日期'], line1['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+line.add('宝鸡FDD', line2['日期'], line2['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+line.add('西安FDD', line3['日期'], line3['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+bar.add('咸阳FDD', line1['日期'], line1['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+bar.add('宝鸡FDD', line2['日期'], line2['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+bar.add('西安FDD', line3['日期'], line3['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+line_2.add('咸阳FDD', line1['日期'], line1['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+line_2.add('宝鸡FDD', line2['日期'], line2['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+line_2.add('西安FDD', line3['日期'], line3['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+bar_2.add('咸阳FDD', line1['日期'], line1['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+bar_2.add('宝鸡FDD', line2['日期'], line2['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
+bar_2.add('西安FDD', line3['日期'], line3['rrc建立成功率'], mark_line=["rrc建立成功率"], mark_point=["max", "min"], yaxis_min=90, is_more_utils=True)
 
-    lastMonth_1st_day = now.floor('month').replace(months = -1)             #上个月1号的日期
-    thisMonth_1st_day = now.floor('month')                                  #这个月1号的日期
-    nextMonth_1st_day = now.floor('month').replace(months = +1)             #下个月1号的日期
-    lastWeek_Monday = now.replace(weeks = -1).floor('week')             #上一周周一的日期
-    thisWeek_Monday = now.floor('week')                                 #这一周周一的日期
-    if thisMonth_1st_day.isoweekday() == 1 :                                #如果这个月的1号是周一,
-        thisMonth_1st_Monday = now.floor('month')                           #则这个月的第一个完整周 的 周一的日期 就是当月的1号的日期
-    else :
-        thisMonth_1st_Monday = now.floor('month').replace(weeks = +1).floor('week')      #否则这个月的第一个完整周 的 周一的日期 就是当月1号所在的下一周的周一的日期
+page.add(line)
+page.add(line_2)
+page.add(bar)
+page.add(bar_2)
 
-    if thisWeek_Monday - thisMonth_1st_Monday == thisWeek_Monday - thisWeek_Monday :       #如果 这一周周一的日期  减去这个月的第一个完整周 周一的日期 如果结果等于0
-        rangeDate['startDate'] = lastMonth_1st_day.format('YYYYMMDD')               #开始时间就是上个月1号
-        rangeDate['endDate'] = thisMonth_1st_Monday.format('YYYYMMDDH')               #结束时间就是这个月的第一个完整周 周一的日期
-    else :
-        rangeDate['startDate'] = thisMonth_1st_day.format('YYYYMMDD')               #开始时间就是这个月1号
-        rangeDate['endDate'] = nextMonth_1st_day.format('YYYYMMDD')                 #结束时间就是这个月的第一个完整周 周一的日期
-
-    return rangeDate
-
-tdate = getDateRange()  #初始化日期
-
-def sqlCollated(sqlFilePath,extensionFileName):
-    '''
-    此函数的功能为 查找给出参数路径下的 '.SQL' 文件,并返回 文件名字(不包含扩展名) 和 文件内容的元组构成的列表
-    :param sqlFilePath: 存储 .SQL 文件的 路径
-    :return: 为一个二元列表 [('文件名1', '文件内容1'), ('文件名2', '文件内容2'), ('文件名n', '文件内容n')]
-    '''
-    sqlFiles = getfiles.getTypeFileList(os.path.abspath(sqlFilePath), extensionFileName)  #获取 '.SQL' 文件列表 此处不区分大小写
-    sqls = []    #存储sql脚本的列表
-    sqlFileNames = [] #存储sql文件的文件名 ,不包含 扩展名.SQL
-    for i,sqlFile in enumerate(sqlFiles) :
-        #此处为遍历找到的.SQL文件,并将sql语句存入slqs列表中
-        #将文件名存入sheetName 列表中
-        sqlFileNames.append(os.path.basename(sqlFile).split(".")[0])    #将文件名添加到sqlFileNames 列表
-        tmp = open(sqlFile,mode='r', encoding='utf-8')
-        try:
-            sqls.append(tmp.read())
-        except Exception as e :
-            print(str(e))
-        finally:
-            tmp.close()
-    return  list(zip(sqlFileNames,sqls))
-
-
-def proessSQL(sql) :
-    #此函数为替换plsql脚本中的变量 为  &start_datetime 为 start_datetime的值
-    newsql = sql.replace('&start_datetime',tdate['yesday'])
-    newsql = newsql.replace('&end_datetime',tdate['today'])
-    #newsql = newsql.decode('utf-8')
-    return newsql
-
-def executeSQL(sqls,conStr,excelFileName=r'./output/' + tdate['today'] ):
-    '''
-
-    :param sqls: 为一个二元列表 [('sqlName1', 'sqlScript1'), ('sqlName2', 'sqlScript2'), ('sqlNameN', 'sqlScriptN')].
-    :param conStr: 为Oracle 连接的字符串,例如:conStr = 'oracle://omc:omc@10.100.162.10:1521/oss'
-            ('oracle://user:password@ip:port/servicename') 默认端口1521可以省略.
-            或者 'mysql+pymysql://root:planet@127.0.0.1:10010/4g_kpi_browsing?charset=utf8'
-    :param excelFileName  可选参数,默认值为 (r'./output/' + tdate['today'] + '/excel.xlsx') 即将结果保存为excel 文件的路径
-            excelFileName 为 None 时 不保存excel文件.
-    :return: 返回 (文件名,Datafream) 的 列表 文件名为参数中的sql文件名,
-             Datafream 为从数据库中取得的表转化为Datafream
-    '''
-    engine = create_engine(conStr)  #创建数据库引擎
-    if excelFileName != None:
-        getfiles.mkdir(os.path.abspath(excelFileName))  # 确认文件夹存在,不存在则建立此文件夹
-        fileName = os.path.join(os.path.abspath(excelFileName), tdate['yesday'] + "_" + tdate['today'] + "_" + tdate['now'] + ".xlsx")
-        excelWriter = pd.ExcelWriter(fileName)  # 创建 excelWriter
-    else:
-        excelWriter = None
-
-    tables = []   #保存DataFream的数组
-    for i,sql in enumerate(sqls) :
-        #遍历执行每一个sql语句,并将结果转化为Datafream对象  添加到列表 tables 中
-        df = pd.read_sql(proessSQL(sql[1]), engine)  # read_sql直接返回一个DataFrame对象
-        tables.append(df)                           #将df添加到tables 列表
-        if excelWriter:
-            tables[i].to_excel(excelWriter,sql[0])    # 给excelWriter 添加sheet
-    if  excelWriter:
-        excelWriter.save()  # 保存excel文件 注意: 此处保存excelWriter 需要等待所有sheet均写入后
-                            #  一次保存 否则 excelWriter 关闭后只能有一个sheet
-    return list(zip([name[0] for name in sqls],tables))  # 返回 (文件名,Datafream) 的 列表
+page.render(r'./HTML/pyecharts_2.html')  # 保存为本地HTML单文件
+'''
 
 
 
 
-if __name__=='__main__':
-    sqls = sqlCollated(os.path.abspath(r'./sql/lte'),'.mysql')    #整理sql脚本
-    print(sqls)
-    #conStr = 'oracle://omc:omc@10.100.162.10:1521/oss'                #Oracle连接字符串
-    conStr = 'mysql+pymysql://root:planet@127.0.0.1:10010/4g_kpi_browsing?charset=utf8'
-    sqlDf = executeSQL(sqls,conStr)                         #连接数据库,执行sql 并返回 Datafream
+#作图
+# grid = Grid()   #将多张图合并为一张的容器
+page = Page()   #将多张图放到一个网页
+timeline = Timeline(is_auto_play=True, timeline_bottom=0)
+
+lines = []
+lineXianyang = []
+lineBaoji = []
+lineXian = []
+
+style = Style()
+
+#line的样式
+line_style = style.add(
+    mark_point=["max", "min"],      # Line中显示最大值和最小值的标签
+    is_smooth=True,                 # 平滑曲线
+    is_more_utils=True,             # 图表显示工具栏
+    mark_point_symbol='pin',         # 标记点图形，，默认为'pin'，有'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow'可选
+    mark_point_symbolsize=60,        # 标记点图形大小 默认为50
+    # yaxis_max="dataMax",           # Y 坐标轴刻度最大值，默认为自适应。使用特殊值 "dataMax" 可自定以数据中最小值为 x 轴最大值。
+    # yaxis_min="dataMin",           #  Y 坐标轴刻度最小值，
+    is_splitline_show=False,          # 是否显示 y 轴网格线，默认为 True。
+    xaxis_rotate=45,                 # X轴标签旋转度数
+    is_datazoom_show=True,          #显示图表缩放工具
+    datazoom_type='both',           #缩放类型
+    datazoom_range=[0, 100],          # 默认的缩放范围
+    datazoom_orient='vertical'       #datazoom 组件在直角坐标系中的方向，默认为 'horizontal'，效果显示在 x 轴。如若设置为 'vertical' 的话效果显示在 y 轴。
+)
+
+for i,kpiName in enumerate(df.columns):
+    if i>=2:
+        #选取指定KPI的数据
+        lineXianyang.append(df[df['地市'] == '咸阳FDD'][['日期', kpiName]])
+        lineBaoji.append(df[df['地市'] == '宝鸡FDD'][['日期', kpiName]])
+        lineXian.append(df[df['地市'] == '西安FDD'][['日期', kpiName]])
+
+        #确定Y轴的最大值和最小值
+        line_style['yaxis_max'] = math.ceil(df[kpiName].max() + (df[kpiName].max() -df[kpiName].min())*0.5)
+        line_style['yaxis_min'] = math.floor(df[kpiName].min() - (df[kpiName].max() -df[kpiName].min())*0.5)
+
+        #给chart中添加line
+        lines.append(Line(kpiName, dft[0], height=400 ))  # 图表 line的标题和副标题
+        lines[i-2].add('咸阳FDD', lineXianyang[i-2]['日期'], lineXianyang[i-2][kpiName], mark_line=[kpiName], **line_style)
+        lines[i-2].add('宝鸡FDD', lineBaoji[i-2]['日期'], lineBaoji[i-2][kpiName], mark_line=[kpiName], **line_style)
+        lines[i-2].add('西安FDD', lineXian[i-2]['日期'], lineXian[i-2][kpiName], mark_line=[kpiName], **line_style)
 
 
+        # grid.add(lines[i-2])
+        page.add(lines[i-2])
+        timeline.add(lines[i-2], kpiName)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# grid.render(r'./HTML/grid.html')  # 保存为本地HTML单文件
+page.render(r'./HTML/page.html')  # 保存为本地HTML单文件
+timeline.render(r'./HTML/timeline.html')
 
 
 

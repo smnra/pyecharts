@@ -9,7 +9,7 @@
 
 """
 from sqlToDatafream import *
-import os
+import os,math
 from pyecharts import *
 
 
@@ -79,6 +79,8 @@ lineBaoji = []
 lineXian = []
 
 style = Style()
+
+#line的样式
 line_style = style.add(
     mark_point=["max", "min"],      # Line中显示最大值和最小值的标签
     is_smooth=True,                 # 平滑曲线
@@ -87,6 +89,7 @@ line_style = style.add(
     mark_point_symbolsize=60,        # 标记点图形大小 默认为50
     # yaxis_max="dataMax",           # Y 坐标轴刻度最大值，默认为自适应。使用特殊值 "dataMax" 可自定以数据中最小值为 x 轴最大值。
     # yaxis_min="dataMin",           #  Y 坐标轴刻度最小值，
+    is_splitline_show=False,          # 是否显示 y 轴网格线，默认为 True。
     xaxis_rotate=45,                 # X轴标签旋转度数
     is_datazoom_show=True,          #显示图表缩放工具
     datazoom_type='both',           #缩放类型
@@ -96,10 +99,18 @@ line_style = style.add(
 
 for i,kpiName in enumerate(df.columns):
     if i>=2:
+        #选取指定KPI的数据
         lineXianyang.append(df[df['地市'] == '咸阳FDD'][['日期', kpiName]])
         lineBaoji.append(df[df['地市'] == '宝鸡FDD'][['日期', kpiName]])
         lineXian.append(df[df['地市'] == '西安FDD'][['日期', kpiName]])
 
+        #确定Y轴的最大值和最小值
+        # Y轴的最大值算法 : 某一KPI指标的  最大值 + 最大值与最小值之差*0.5 然后向上取整
+        # Y轴的最小值算法 : 某一KPI指标的  最小值 - 最大值与最小值之差*0.5 然后向下取整
+        line_style['yaxis_max'] = math.ceil(df[kpiName].max() + (df[kpiName].max() -df[kpiName].min())*0.5)
+        line_style['yaxis_min'] = math.floor(df[kpiName].min() - (df[kpiName].max() -df[kpiName].min())*0.5)
+
+        #给chart中添加line
         lines.append(Line(kpiName, dft[0], height=400 ))  # 图表 line的标题和副标题
         lines[i-2].add('咸阳FDD', lineXianyang[i-2]['日期'], lineXianyang[i-2][kpiName], mark_line=[kpiName], **line_style)
         lines[i-2].add('宝鸡FDD', lineBaoji[i-2]['日期'], lineBaoji[i-2][kpiName], mark_line=[kpiName], **line_style)
